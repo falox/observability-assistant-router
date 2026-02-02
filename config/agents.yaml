@@ -1,0 +1,80 @@
+session:
+  sticky_enabled: true  # Keep using the same agent during a conversation
+  timeout_minutes: 30  # How long before a conversation expires
+  topic_drift_threshold: 0.2  # How different a message must be to switch agents (0-1, lower = stickier)
+
+default_agent:
+  id: "default"
+
+agents:
+  - id: "default"
+    name: "Generic"
+    handles: ["assistant", "generic"]
+    url: "http://localhost:8080/a2a"
+    protocol: "a2a"
+    description: >
+      General-purpose assistant (fallback agent).
+
+  - id: "troubleshooting-agent"
+    name: "Troubleshooting"
+    handles: ["issue", "alert", "debug"]
+    url: "http://localhost:5050/api/agui/chat"
+    protocol: "ag-ui"
+
+    routing:
+      priority: 1  # Lower = checked first when multiple agents match
+      threshold: 0.80  # How confident the match must be (0-1, higher = stricter)
+      examples:
+        # Alerts & Incident Response
+        - "Why am I getting this alert?"
+        - "What triggered the high CPU alert?"
+        - "Help me understand this PagerDuty incident"
+        - "How do I investigate this firing alert?"
+        - "The cluster is firing multiple alerts, where do I start?"
+        # Root Cause Analysis
+        - "Why is my pod crashing?"
+        - "What's the root cause of this deployment failure?"
+        - "Why did the node become NotReady?"
+        - "What caused the service outage?"
+        - "Debug why requests are timing out"
+        - "Why are my containers getting OOMKilled?"
+        - "What's causing the CrashLoopBackOff?"
+        # Pod & Container Issues
+        - "My pod is in ImagePullBackOff, how do I fix it?"
+        - "Debug the failing liveness probe"
+        - "Why is my pod stuck in Pending state?"
+        - "The readiness probe keeps failing, what's wrong?"
+        - "Help me troubleshoot container restart loops"
+        # Resource Analysis
+        - "Why is CPU usage so high on this node?"
+        - "Analyze memory consumption for my deployment"
+        - "Which pods are using the most resources?"
+        - "Why is the HPA not scaling my pods?"
+        - "Investigate the memory leak in my application"
+        # Metrics & Observability
+        - "What metrics should I look at for this problem?"
+        - "Help me analyze the Prometheus alerts"
+        - "Why is the request latency increasing?"
+        - "Interpret these resource usage patterns"
+        # Logs & Debugging
+        - "How do I get logs from a crashed pod?"
+        - "Help me find errors in the container logs"
+        - "Find the stack trace from the crash"
+        # Networking
+        - "Why can't my pods communicate with each other?"
+        - "Debug DNS resolution failures"
+        - "Why is the ingress returning 503 errors?"
+        # Configuration
+        - "Why did my deployment rollout fail?"
+        - "Debug the secret mount issue"
+        - "Help me fix the RBAC permission error"
+        - "Why is the PersistentVolumeClaim stuck in Pending?"
+        # Cluster Health
+        - "Is the cluster healthy?"
+        - "Why is the node under disk pressure?"
+        - "Are there any failing control plane components?"
+
+    description: >
+      Investigates OpenShift cluster issues including alerts, incidents,
+      and root cause analysis. Analyzes metrics, logs, pod failures,
+      resource usage, networking problems, and configuration errors.
