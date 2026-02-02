@@ -12,6 +12,27 @@ A multi-agent orchestrator service that routes messages to specialized agents vi
 - **LLM Fallback**: Uses default agent's LLM for ambiguous routing decisions
 - **BYOA (Bring Your Own Agent)**: Register agents via YAML configuration - no code changes required
 
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              observability-assistant-router                     │
+│                                                                 │
+│  ┌──────────┐    ┌──────────────┐    ┌─────────────────┐        │
+│  │ AG-UI    │───>│   Semantic   │───>│  Agent Proxy    │        │
+│  │ Endpoint │    │   Router     │    │                 │        │
+│  │ (SSE)    │<───│              │<───│                 │        │
+│  └──────────┘    └──────────────┘    └─────────────────┘        │
+└─────────────────────────────────────────────────────────────────┘
+                           │
+           ┌───────────────┼───────────────┐
+           ▼               ▼               ▼
+  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐
+  │ Default     │  │  Agent A    │  │  Agent B    │
+  │ Agent       │  │  (A2A)      │  │  (AG-UI)    │
+  └─────────────┘  └─────────────┘  └─────────────┘
+```
+
 ## Quick Start
 
 ### Prerequisites
@@ -213,24 +234,3 @@ Force routing to a specific agent:
 3. **Semantic Matching**: Embed message and compare to agent examples
 4. **LLM Fallback**: If no match above threshold, ask default agent's LLM
 5. **Default Fallback**: If still uncertain, route to default agent
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│              observability-assistant-router                      │
-│                                                                  │
-│  ┌──────────┐    ┌──────────────┐    ┌─────────────────┐        │
-│  │ AG-UI    │───>│   Semantic   │───>│  Agent Proxy    │        │
-│  │ Endpoint │    │   Router     │    │                 │        │
-│  │ (SSE)    │<───│              │<───│                 │        │
-│  └──────────┘    └──────────────┘    └─────────────────┘        │
-└─────────────────────────────────────────────────────────────────┘
-                           │
-           ┌───────────────┼───────────────┐
-           ▼               ▼               ▼
-  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐
-  │ Default     │  │  Agent A    │  │  Agent B    │
-  │ Agent       │  │  (A2A)      │  │  (AG-UI)    │
-  └─────────────┘  └─────────────┘  └─────────────┘
-```
